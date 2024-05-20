@@ -1,2 +1,2 @@
-streamlit
-st_audiorec
+streamlit==1.34.0
+streamlit_audiorec==0.1.3
