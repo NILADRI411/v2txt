@@ -1,63 +1,38 @@
 import streamlit as st
-from st_audiorec import st_audiorec
 import speech_recognition as sr
 
-# DESIGN implement changes to the standard streamlit UI/UX
-# --> optional, not relevant for the functionality of the component!
-st.set_page_config(page_title="streamlit_audio_recorder")
-# Design move app further up and remove top padding
-st.markdown('''<style>.css-1egvi7u {margin-top: -3rem;}</style>''',
-            unsafe_allow_html=True)
-# Design change st.Audio to fixed height of 45 pixels
-st.markdown('''<style>.stAudio {height: 45px;}</style>''',
-            unsafe_allow_html=True)
-# Design change hyperlink href link color
-st.markdown('''<style>.css-v37k9u a {color: #ff4c4b;}</style>''',
-            unsafe_allow_html=True)  # darkmode
-st.markdown('''<style>.css-nlntq9 a {color: #ff4c4b;}</style>''',
-            unsafe_allow_html=True)  # lightmode
+def speech_to_text():
+    # Create a recognizer object
+    recognizer = sr.Recognizer()
 
-def audiorec_demo_app():
-    # TITLE and Creator information
-    st.title('streamlit audio recorder')
+    # Use the default microphone as the audio source
+    with sr.Microphone() as source:
+        st.write("Listening...")
 
-    # TUTORIAL: How to use STREAMLIT AUDIO RECORDER?
-    # by calling this function an instance of the audio recorder is created
-    # once a recording is completed, audio data will be saved to wav_audio_data
+        # Adjust for ambient noise
+        recognizer.adjust_for_ambient_noise(source)
 
-    wav_audio_data = st_audiorec() # tadaaaa! yes, that's it! :D
+        # Capture the audio input from the user
+        audio = recognizer.listen(source)
 
-    # add some spacing and informative messages
-    col_info, col_space = st.columns([0.57, 0.43])
-    with col_info:
-        st.write('\n')  # add vertical spacer
-        st.write('\n')  # add vertical spacer
-        st.write('The .wav audio data, as received in the backend Python code,'
-                 ' will be displayed below this message as soon as it has'
-                 ' been processed. [This informative message is not part of'
-                 ' the audio recorder and can be removed easily] 🎈')
+    st.write("Processing...")
 
-    if wav_audio_data is not None:
-        # Save audio data to file
-        with open("audio.wav", "wb") as f:
-            f.write(wav_audio_data)
+    try:
+        # Use the recognizer to convert speech to text
+        text = recognizer.recognize_google(audio)
+        st.write("Text:", text)
+    except sr.UnknownValueError:
+        st.write("Sorry, I could not understand your speech.")
+    except sr.RequestError as e:
+        st.write("Sorry, an error occurred. Please try again later.")
 
-        # Convert audio to text
-        r = sr.Recognizer()
-        with sr.AudioFile("audio.wav") as source:
-            audio_text = r.record(source)
-            text = r.recognize_google(audio_text)
-            print(text)
 
-        # Display audio data as received on the Python side
-        col_playback, col_space = st.columns([0.58,0.42])
-        with col_playback:
-            st.audio(wav_audio_data, format='audio/wav')
+def main():
+    st.title("Speech to Text")
 
-        # Display the converted text
-        st.write("Converted Text:")
-        st.write(text)
+    # Call the speech_to_text function when the button is clicked
+    if st.button("Start Recording"):
+        speech_to_text()
 
-if __name__ == '__main__':
-    # call main function
-    audiorec_demo_app()
+if __name__ == "__main__":
+    main()
