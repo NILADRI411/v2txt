@@ -1,5 +1,3 @@
-PyAudio
-SpeechRecognition==3.8.1
-streamlit==1.34.0
-streamlit-audiorec==0.1.3
-
+pyttsx3
+streamlit
+time
